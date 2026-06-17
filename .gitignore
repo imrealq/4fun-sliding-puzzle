@@ -1,0 +1,17 @@
+.opencode/
+
+# IDE
+.vscode/
+.vs/
+src/.vscode/
+src/.vs/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+
+# OS
+.DS_Store
+Thumbs.db
