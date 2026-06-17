@@ -61,12 +61,12 @@ export function canMoveTileByArrowKey(
 
   const targetPosition =
     direction === 'up'
-      ? { row: emptyTile.position.row - 1, column: emptyTile.position.column }
+      ? { row: emptyTile.position.row + 1, column: emptyTile.position.column }
       : direction === 'down'
-        ? { row: emptyTile.position.row + 1, column: emptyTile.position.column }
+        ? { row: emptyTile.position.row - 1, column: emptyTile.position.column }
         : direction === 'left'
-          ? { row: emptyTile.position.row, column: emptyTile.position.column - 1 }
-          : { row: emptyTile.position.row, column: emptyTile.position.column + 1 };
+          ? { row: emptyTile.position.row, column: emptyTile.position.column + 1 }
+          : { row: emptyTile.position.row, column: emptyTile.position.column - 1 };
 
   const tile = board.tiles.find(
     (candidate) =>

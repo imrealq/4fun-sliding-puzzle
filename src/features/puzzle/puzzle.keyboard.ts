@@ -1,9 +1,8 @@
-import { handleDesktopArrowKey } from './puzzle.logic';
+import { canMoveTileByArrowKey, moveTile } from './puzzle.logic';
 import type { PuzzleBoard } from './puzzle.types';
 
 export function createKeyboardMoveHandler(
-  board: PuzzleBoard,
-  setBoard: (board: PuzzleBoard) => void,
+  setBoard: (updateBoard: (board: PuzzleBoard) => PuzzleBoard) => void,
 ): (event: KeyboardEvent) => void {
   return (event: KeyboardEvent): void => {
     if (
@@ -17,12 +16,15 @@ export function createKeyboardMoveHandler(
 
     event.preventDefault();
 
-    const nextBoard = handleDesktopArrowKey(board, event.key);
+    const direction = event.key.replace('Arrow', '').toLowerCase() as
+      | 'up'
+      | 'down'
+      | 'left'
+      | 'right';
+    setBoard((board) => {
+      const tileId = canMoveTileByArrowKey(board, direction);
 
-    if (nextBoard === board) {
-      return;
-    }
-
-    setBoard(nextBoard);
+      return tileId === null ? board : moveTile(board, tileId);
+    });
   };
 }

@@ -1,4 +1,4 @@
-import { createSolvedBoard } from './puzzle.utils';
+import { canMoveTile, findEmptyTile, moveTile } from './puzzle.logic';
 import type { PuzzleBoard } from './puzzle.types';
 
 function createSeededRandom(seed: number): () => number {
@@ -10,44 +10,41 @@ function createSeededRandom(seed: number): () => number {
   };
 }
 
-function shuffleArray<T>(items: readonly T[], random: () => number): T[] {
-  const result = [...items];
+function getSolvableShuffleSteps(size: number): number {
+  return Math.max(size * size * 40, 160);
+}
 
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+function getNeighborTileIds(board: PuzzleBoard): number[] {
+  const emptyTile = findEmptyTile(board);
+
+  if (!emptyTile) {
+    return [];
   }
 
-  return result;
+  return board.tiles.filter((tile) => canMoveTile(board, tile.id)).map((tile) => tile.id);
 }
 
 export function shuffleBoard(board: PuzzleBoard): PuzzleBoard {
   const random = createSeededRandom(Date.now());
-  const size = board.size;
-  const playableTiles = board.tiles.filter((tile) => !tile.isEmpty);
-  const shuffledTiles = shuffleArray(playableTiles, random);
+  const steps = getSolvableShuffleSteps(board.size);
+  let currentBoard = board;
+  let previousTileId: number | null = null;
 
-  const tiles = shuffledTiles.map((tile, index) => {
-    const row = Math.floor(index / size);
-    const column = index % size;
+  for (let step = 0; step < steps; step += 1) {
+    const neighborTileIds = getNeighborTileIds(currentBoard).filter(
+      (tileId) => tileId !== previousTileId,
+    );
+    const candidates =
+      neighborTileIds.length > 0 ? neighborTileIds : getNeighborTileIds(currentBoard);
 
-    return {
-      ...tile,
-      position: { row, column },
-    };
-  });
+    if (candidates.length === 0) {
+      break;
+    }
 
-  const emptyPosition = { row: size - 1, column: size - 1 };
-  const solvedBoard = createSolvedBoard(size);
-  const emptyTile = solvedBoard.tiles[solvedBoard.tiles.length - 1];
+    const tileId = candidates[Math.floor(random() * candidates.length)];
+    currentBoard = moveTile(currentBoard, tileId);
+    previousTileId = tileId;
+  }
 
-  tiles.push({
-    ...emptyTile,
-    position: emptyPosition,
-  });
-
-  return {
-    size,
-    tiles,
-  };
+  return currentBoard;
 }
