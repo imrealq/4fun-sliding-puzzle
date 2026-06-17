@@ -12,7 +12,7 @@ function formatDuration(milliseconds: number): string {
   return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
 }
 
-export function usePuzzleGame(boardSize = 4): Readonly<{
+export function usePuzzleGame(boardSize = 5): Readonly<{
   board: PuzzleBoard;
   elapsedTime: string;
   moveCount: number;
@@ -28,6 +28,15 @@ export function usePuzzleGame(boardSize = 4): Readonly<{
   const [isWon, setIsWon] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    setBoard(shuffleBoard(createSolvedBoard(boardSize)));
+    setStartedAt(null);
+    setNow(null);
+    setMoveCount(0);
+    setIsWon(false);
+    setFinishedAt(null);
+  }, [boardSize]);
 
   const applyMove = (nextBoard: PuzzleBoard): void => {
     setBoard(nextBoard);
