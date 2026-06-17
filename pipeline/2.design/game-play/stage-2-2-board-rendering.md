@@ -36,3 +36,4 @@ Render a visible puzzle board in the browser using the current puzzle state.
 ## Notes
 - Keep rendering logic separate from movement logic.
 - Do not implement shuffle or solved-state celebration in this stage.
+- Arrow-key movement and swipe gestures are out of scope for this stage and should be added with gameplay input support.

@@ -15,6 +15,9 @@ Improve the game loop and polish the experience.
 ### 5.3 Accessibility and Clarity
 - Keep controls understandable on mobile and desktop.
 - Make active game state obvious.
+- Include keyboard instructions for arrow-key movement.
+- Ensure focus state and input affordances support keyboard-only play.
+- Keep mobile instructions focused on swipe gestures rather than tap-to-select.
 
 ## Output of this stage
 - A more complete and satisfying game experience.
