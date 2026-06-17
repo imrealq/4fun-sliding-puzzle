@@ -1,4 +1,4 @@
-export const DEFAULT_IMAGE = '/src/assets/images/default.jpg';
+export const DEFAULT_IMAGE = '/src/assets/images/default.svg';
 
 export const IMAGE_PRESETS = [
   {

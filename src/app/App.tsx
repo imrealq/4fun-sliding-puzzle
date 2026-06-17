@@ -1,6 +1,6 @@
 import { DEFAULT_IMAGE } from '@/constants/images';
-import { useState } from 'react';
-import { createSolvedBoard } from '@/features/puzzle';
+import { useEffect, useState } from 'react';
+import { createKeyboardMoveHandler, createSolvedBoard } from '@/features/puzzle';
 import { PuzzleBoard } from '@/features/puzzle/puzzle.board';
 import { shuffleBoard } from '@/features/puzzle/puzzle.shuffle';
 
@@ -10,6 +10,16 @@ export function App(): JSX.Element {
   const handlePlay = (): void => {
     setBoard(shuffleBoard(createSolvedBoard(4)));
   };
+
+  useEffect(() => {
+    const onKeyDown = createKeyboardMoveHandler(board, setBoard);
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-8 text-slate-100">
