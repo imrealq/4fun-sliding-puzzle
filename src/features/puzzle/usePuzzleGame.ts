@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { createKeyboardMoveHandler, createSolvedBoard, isSolvedBoard } from './index';
+import { canMoveTileByArrowKey, createSolvedBoard, isSolvedBoard, moveTile } from './index';
 import type { PuzzleBoard } from './puzzle.types';
 import { shuffleBoard } from './puzzle.shuffle';
 
@@ -15,6 +15,7 @@ function formatDuration(milliseconds: number): string {
 export function usePuzzleGame(boardSize = 4): Readonly<{
   board: PuzzleBoard;
   elapsedTime: string;
+  moveCount: number;
   isWon: boolean;
   showReference: boolean;
   handlePlay: () => void;
@@ -23,14 +24,26 @@ export function usePuzzleGame(boardSize = 4): Readonly<{
   const [board, setBoard] = useState(() => shuffleBoard(createSolvedBoard(boardSize)));
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
+  const [moveCount, setMoveCount] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
+
+  const applyMove = (nextBoard: PuzzleBoard): void => {
+    setBoard(nextBoard);
+    setMoveCount((current) => current + 1);
+
+    if (!startedAt && !finishedAt) {
+      setStartedAt(Date.now());
+      setNow(Date.now());
+    }
+  };
 
   const handlePlay = (): void => {
     setBoard(shuffleBoard(createSolvedBoard(boardSize)));
     setStartedAt(null);
     setNow(null);
+    setMoveCount(0);
     setIsWon(false);
     setFinishedAt(null);
   };
@@ -67,7 +80,36 @@ export function usePuzzleGame(boardSize = 4): Readonly<{
   }, [board]);
 
   useEffect(() => {
-    const onKeyDown = createKeyboardMoveHandler(setBoard);
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (finishedAt) {
+        return;
+      }
+
+      const direction =
+        event.key === 'ArrowUp'
+          ? 'up'
+          : event.key === 'ArrowDown'
+            ? 'down'
+            : event.key === 'ArrowLeft'
+              ? 'left'
+              : event.key === 'ArrowRight'
+                ? 'right'
+                : null;
+
+      if (!direction) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const tileId = canMoveTileByArrowKey(board, direction);
+
+      if (tileId === null) {
+        return;
+      }
+
+      applyMove(moveTile(board, tileId));
+    };
 
     window.addEventListener('keydown', onKeyDown);
 
@@ -96,6 +138,7 @@ export function usePuzzleGame(boardSize = 4): Readonly<{
   return {
     board,
     elapsedTime,
+    moveCount,
     isWon,
     showReference,
     handlePlay,
