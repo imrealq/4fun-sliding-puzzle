@@ -37,3 +37,27 @@ export function getTileAtPosition(
 export function getBoardTileCount(board: import('./puzzle.types').PuzzleBoard): number {
   return board.tiles.length;
 }
+
+export function sortTilesByPosition(
+  tiles: readonly import('./puzzle.types').PuzzleTile[],
+): readonly import('./puzzle.types').PuzzleTile[] {
+  return [...tiles].sort((left, right) => {
+    const leftIndex = left.position.row * 100 + left.position.column;
+    const rightIndex = right.position.row * 100 + right.position.column;
+
+    return leftIndex - rightIndex;
+  });
+}
+
+export function getTileSliceStyle(
+  tile: import('./puzzle.types').PuzzleTile,
+  boardSize: number,
+): Readonly<{
+  backgroundSize: string;
+  backgroundPosition: string;
+}> {
+  return {
+    backgroundSize: `${boardSize * 100}% ${boardSize * 100}%`,
+    backgroundPosition: `${(tile.correctPosition.column / Math.max(boardSize - 1, 1)) * 100}% ${(tile.correctPosition.row / Math.max(boardSize - 1, 1)) * 100}%`,
+  };
+}

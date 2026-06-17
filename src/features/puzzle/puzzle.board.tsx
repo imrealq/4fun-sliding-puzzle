@@ -1,6 +1,6 @@
 import type { PuzzleBoard as PuzzleBoardModel } from './puzzle.types';
 import type { PuzzleBoardPreviewProps, PuzzleBoardProps } from './puzzle.board.types';
-import { getTileAtPosition } from './puzzle.utils';
+import { getTileAtPosition, getTileSliceStyle, sortTilesByPosition } from './puzzle.utils';
 
 export function PuzzleBoard({ board, imageSrc }: PuzzleBoardProps): React.ReactElement {
   return (
@@ -9,10 +9,9 @@ export function PuzzleBoard({ board, imageSrc }: PuzzleBoardProps): React.ReactE
         className="grid aspect-square w-full gap-1 overflow-hidden rounded-2xl bg-slate-950 p-1"
         style={{ gridTemplateColumns: `repeat(${board.size}, minmax(0, 1fr))` }}
       >
-        {board.tiles.map((tile) => {
+        {sortTilesByPosition(board.tiles).map((tile) => {
           const isEmpty = tile.isEmpty;
-          const backgroundSize = `${board.size * 100}% ${board.size * 100}%`;
-          const backgroundPosition = `${(tile.correctPosition.column / Math.max(board.size - 1, 1)) * 100}% ${(tile.correctPosition.row / Math.max(board.size - 1, 1)) * 100}%`;
+          const { backgroundSize, backgroundPosition } = getTileSliceStyle(tile, board.size);
 
           return (
             <button
@@ -28,7 +27,7 @@ export function PuzzleBoard({ board, imageSrc }: PuzzleBoardProps): React.ReactE
             >
               {!isEmpty ? (
                 <div
-                  className="absolute inset-0 bg-cover bg-center"
+                  className="absolute inset-0 bg-no-repeat bg-center"
                   style={{
                     backgroundImage: `url(${imageSrc})`,
                     backgroundSize,
