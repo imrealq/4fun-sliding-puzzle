@@ -23,3 +23,17 @@ export function createSolvedBoard(size: number): import('./puzzle.types').Puzzle
 export function resetBoard(size: number): import('./puzzle.types').PuzzleBoard {
   return createSolvedBoard(size);
 }
+
+export function getTileAtPosition(
+  board: import('./puzzle.types').PuzzleBoard,
+  row: number,
+  column: number,
+): import('./puzzle.types').PuzzleTile | null {
+  return (
+    board.tiles.find((tile) => tile.position.row === row && tile.position.column === column) ?? null
+  );
+}
+
+export function getBoardTileCount(board: import('./puzzle.types').PuzzleBoard): number {
+  return board.tiles.length;
+}

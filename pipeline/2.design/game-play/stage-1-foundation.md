@@ -21,3 +21,5 @@ Create the app shell and the domain model that later stages will build on.
 
 ## Notes
 - Keep this stage free of board-rendering or movement behavior.
+- Put shared game/domain types in `src/types/`.
+- Put feature-specific puzzle types in `src/features/puzzle/`.
