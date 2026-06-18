@@ -143,7 +143,7 @@ const STEPS: Record<
           </div>
           <ArrowKeyIllustration />
           <p className="mt-3 text-slate-300">
-            Use the arrow keys on your keyboard to move the empty space.
+            Use the arrow keys on your keyboard to move tiles into the empty space.
           </p>
         </div>
       </div>
