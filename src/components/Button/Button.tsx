@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 type ButtonProps = Readonly<{
   children: ReactNode;
@@ -12,7 +12,7 @@ export function Button({
   onClick,
   variant = 'primary',
   ariaLabel,
-}: ButtonProps): JSX.Element {
+}: ButtonProps): ReactElement {
   const className =
     variant === 'primary'
       ? 'rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400'

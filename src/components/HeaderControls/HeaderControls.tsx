@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { Button } from '@/components/Button/Button';
 import { IconButton } from '@/components/IconButton/IconButton';
 
@@ -15,7 +16,7 @@ export function HeaderControls({
   onShuffle,
   onToggleInstructions,
   onToggleReference,
-}: HeaderControlsProps): JSX.Element {
+}: HeaderControlsProps): ReactElement {
   return (
     <header className="text-center">
       <div className="mb-3 text-sm text-slate-300">

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { Button, IconButton, Modal } from '@/components';
 import { IMAGE_5X3 } from '@/constants/images';
 import type { InstructionStep } from './useInstructions';
@@ -11,7 +12,7 @@ type InstructionModalProps = Readonly<{
   onGoTo: (step: InstructionStep) => void;
 }>;
 
-function StepBadge({ number }: { number: number }): JSX.Element {
+function StepBadge({ number }: { number: number }): ReactElement {
   return (
     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500/15 text-sm font-semibold text-sky-200">
       {number}
@@ -27,7 +28,7 @@ function StepDots({
   current: InstructionStep;
   total: number;
   onGoTo: (step: InstructionStep) => void;
-}): JSX.Element {
+}): ReactElement {
   return (
     <div className="flex justify-center gap-2" aria-label="Instruction progress">
       {Array.from({ length: total }, (_, i) => (i + 1) as InstructionStep).map((s) => (
@@ -43,7 +44,7 @@ function StepDots({
   );
 }
 
-function FingerSwipeIllustration(): JSX.Element {
+function FingerSwipeIllustration(): ReactElement {
   return (
     <div className="flex items-center gap-4">
       <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-500/15 text-3xl" role="img" aria-label="Finger swipe gesture">
@@ -57,7 +58,7 @@ function FingerSwipeIllustration(): JSX.Element {
   );
 }
 
-function ArrowKeyIllustration(): JSX.Element {
+function ArrowKeyIllustration(): ReactElement {
   return (
     <div className="flex justify-center">
       <div className="grid grid-cols-3 gap-1 text-slate-300">
@@ -83,7 +84,7 @@ function ArrowKeyIllustration(): JSX.Element {
   );
 }
 
-function ReferenceIconIllustration(): JSX.Element {
+function ReferenceIconIllustration(): ReactElement {
   return (
     <div className="flex items-center gap-3 text-slate-100">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-2xl">
@@ -96,7 +97,7 @@ function ReferenceIconIllustration(): JSX.Element {
   );
 }
 
-function SolvedPreview(): JSX.Element {
+function SolvedPreview(): ReactElement {
   return (
     <img
       src={IMAGE_5X3}
@@ -108,7 +109,7 @@ function SolvedPreview(): JSX.Element {
 
 const STEPS: Record<
   InstructionStep,
-  { title: string; content: () => JSX.Element }
+  { title: string; content: () => ReactElement }
 > = {
   1: {
     title: 'Goal of the game',
@@ -164,7 +165,7 @@ export function InstructionModal({
   onNext,
   onPrevious,
   onGoTo,
-}: InstructionModalProps): JSX.Element {
+}: InstructionModalProps): ReactElement {
   const isLastStep = step === TOTAL_INSTRUCTION_STEPS;
   const { title, content: StepContent } = STEPS[step];
 
@@ -176,7 +177,7 @@ export function InstructionModal({
           Restore the picture by moving tiles into the empty space.
         </p>
 
-        <div className="mt-5 flex items-center justify-center gap-3">
+        <div className="mt-5 flex items-center justify-between">
           <IconButton icon="←" onClick={onPrevious} ariaLabel="Previous step" />
           <StepDots current={step} total={TOTAL_INSTRUCTION_STEPS} onGoTo={onGoTo} />
           <IconButton

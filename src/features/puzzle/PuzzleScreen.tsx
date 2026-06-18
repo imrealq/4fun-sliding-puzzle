@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import { Button, HeaderControls, Modal } from '@/components';
 import { IMAGE_5X3, IMAGE_6X4, IMAGE_7X5 } from '@/constants/images';
 import { PuzzleBoard } from './puzzle.board';
@@ -14,7 +15,7 @@ const DIFFICULTY_OPTIONS: readonly PuzzleDifficultyOption[] = [
   { id: 'hard', label: '7 × 5', rows: 7, cols: 5, imageSrc: IMAGE_7X5 },
 ] as const;
 
-export function PuzzleScreen(): JSX.Element {
+export function PuzzleScreen(): ReactElement {
   const [difficulty, setDifficulty] = useState<PuzzleDifficulty>('normal');
   const selectedOption =
     DIFFICULTY_OPTIONS.find((o) => o.id === difficulty) ?? DIFFICULTY_OPTIONS[1];
