@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import type { PuzzleDifficulty, PuzzleDifficultyOption } from './puzzle.difficulty';
 
 type PuzzleDifficultySelectorProps = Readonly<{
@@ -10,7 +11,7 @@ export function PuzzleDifficultySelector({
   value,
   options,
   onChange,
-}: PuzzleDifficultySelectorProps): JSX.Element {
+}: PuzzleDifficultySelectorProps): ReactElement {
   return (
     <div className="mx-auto flex flex-wrap justify-center gap-2">
       {options.map((option) => {

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 type ModalProps = Readonly<{
   children: ReactNode;
@@ -6,7 +6,7 @@ type ModalProps = Readonly<{
   zIndexClass?: string;
 }>;
 
-export function Modal({ children, onDismiss, zIndexClass = 'z-20' }: ModalProps): JSX.Element {
+export function Modal({ children, onDismiss, zIndexClass = 'z-20' }: ModalProps): ReactElement {
   return (
     <div
       className={`fixed inset-0 ${zIndexClass} flex items-center justify-center bg-black/60 px-4`}
