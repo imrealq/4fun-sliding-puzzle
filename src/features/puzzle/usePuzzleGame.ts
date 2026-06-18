@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { canMoveTileByArrowKey, createSolvedBoard, isSolvedBoard, moveTile } from './index';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createSolvedBoard, getArrowKeyTileId, isSolvedBoard, moveTile } from './index';
 import type { PuzzleBoard } from './puzzle.types';
 import { shuffleBoard } from './puzzle.shuffle';
 
@@ -19,6 +19,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   isWon: boolean;
   showReference: boolean;
   handlePlay: () => void;
+  moveByTileId: (tileId: number) => void;
   toggleReference: () => void;
 }> {
   const [board, setBoard] = useState(() => shuffleBoard(createSolvedBoard(boardSize)));
@@ -28,6 +29,10 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   const [isWon, setIsWon] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
+  const boardRef = useRef(board);
+  const finishedAtRef = useRef(finishedAt);
+  boardRef.current = board;
+  finishedAtRef.current = finishedAt;
 
   useEffect(() => {
     setBoard(shuffleBoard(createSolvedBoard(boardSize)));
@@ -46,6 +51,20 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
       setStartedAt(Date.now());
       setNow(Date.now());
     }
+  };
+
+  const moveByTileId = (tileId: number): void => {
+    if (finishedAt) {
+      return;
+    }
+
+    const nextBoard = moveTile(board, tileId);
+
+    if (nextBoard === board) {
+      return;
+    }
+
+    applyMove(nextBoard);
   };
 
   const handlePlay = (): void => {
@@ -90,7 +109,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (finishedAt) {
+      if (finishedAtRef.current) {
         return;
       }
 
@@ -111,13 +130,25 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
 
       event.preventDefault();
 
-      const tileId = canMoveTileByArrowKey(board, direction);
+      const tileId = getArrowKeyTileId(boardRef.current, direction);
 
       if (tileId === null) {
         return;
       }
 
-      applyMove(moveTile(board, tileId));
+      setBoard((currentBoard) => {
+        const nextBoard = moveTile(currentBoard, tileId);
+
+        if (nextBoard === currentBoard) {
+          return currentBoard;
+        }
+
+        setMoveCount((c) => c + 1);
+        setStartedAt((s) => s ?? Date.now());
+        setNow(Date.now());
+
+        return nextBoard;
+      });
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -127,23 +158,6 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
     };
   }, []);
 
-  useEffect(() => {
-    if (startedAt || finishedAt) {
-      return;
-    }
-
-    const onFirstMove = (): void => {
-      setStartedAt(Date.now());
-      setNow(Date.now());
-    };
-
-    window.addEventListener('keydown', onFirstMove, { once: true });
-
-    return () => {
-      window.removeEventListener('keydown', onFirstMove);
-    };
-  }, [finishedAt, startedAt]);
-
   return {
     board,
     elapsedTime,
@@ -151,6 +165,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
     isWon,
     showReference,
     handlePlay,
+    moveByTileId,
     toggleReference: () => setShowReference((current) => !current),
   };
 }

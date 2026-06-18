@@ -1,4 +1,4 @@
-import { canMoveTileByArrowKey, moveTile } from './puzzle.logic';
+import { getArrowKeyTileId, moveTile } from './puzzle.logic';
 import type { PuzzleBoard } from './puzzle.types';
 
 export function createKeyboardMoveHandler(
@@ -22,7 +22,7 @@ export function createKeyboardMoveHandler(
       | 'left'
       | 'right';
     setBoard((board) => {
-      const tileId = canMoveTileByArrowKey(board, direction);
+      const tileId = getArrowKeyTileId(board, direction);
 
       return tileId === null ? board : moveTile(board, tileId);
     });

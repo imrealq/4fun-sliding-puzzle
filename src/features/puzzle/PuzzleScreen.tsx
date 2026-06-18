@@ -13,13 +13,21 @@ const DIFFICULTY_OPTIONS: readonly PuzzleDifficultyOption[] = [
 ] as const;
 
 export function PuzzleScreen(): JSX.Element {
-  const [difficulty, setDifficulty] = useState<PuzzleDifficulty>('hard');
+  const [difficulty, setDifficulty] = useState<PuzzleDifficulty>('normal');
   const selectedOption = useMemo(
     () => DIFFICULTY_OPTIONS.find((option) => option.id === difficulty) ?? DIFFICULTY_OPTIONS[2],
     [difficulty],
   );
-  const { board, elapsedTime, handlePlay, isWon, moveCount, showReference, toggleReference } =
-    usePuzzleGame(selectedOption.boardSize);
+  const {
+    board,
+    elapsedTime,
+    handlePlay,
+    isWon,
+    moveCount,
+    moveByTileId,
+    showReference,
+    toggleReference,
+  } = usePuzzleGame(selectedOption.boardSize);
 
   const handleDifficultyChange = (nextDifficulty: PuzzleDifficulty): void => {
     setDifficulty(nextDifficulty);
@@ -34,7 +42,6 @@ export function PuzzleScreen(): JSX.Element {
           onShuffle={handlePlay}
           onToggleReference={toggleReference}
         />
-
         <PuzzleDifficultySelector
           value={difficulty}
           options={DIFFICULTY_OPTIONS}
@@ -42,7 +49,7 @@ export function PuzzleScreen(): JSX.Element {
         />
 
         <div className="flex justify-center">
-          <PuzzleBoard board={board} imageSrc={selectedOption.imageSrc} />
+          <PuzzleBoard board={board} imageSrc={selectedOption.imageSrc} onTileMove={moveByTileId} />
         </div>
 
         {showReference ? (
