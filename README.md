@@ -2,6 +2,22 @@
 
 React + TypeScript + Vite. An n-puzzle sliding game with 3 difficulty levels.
 
+**Live:** https://4fun-sliding-puzzle.quynhtn29.workers.dev/
+
+---
+
+## Deploy
+
+Hosted on Cloudflare Workers. Auto-deploys on every push to `main`.
+
+```
+Push to main
+    ↓
+Cloudflare Workers: clone → install → npm run build → deploy dist/
+    ↓
+Live at https://4fun-sliding-puzzle.quynhtn29.workers.dev/
+```
+
 ---
 
 ## Source structure
