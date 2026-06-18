@@ -1,6 +1,6 @@
-export const IMAGE_3X3 = '/src/assets/images/default-3x3.svg';
-export const IMAGE_4X4 = '/src/assets/images/default.svg';
-export const IMAGE_5X5 = '/src/assets/images/default-5x5.svg';
+export const IMAGE_3X3 = '/images/default-3x3.svg';
+export const IMAGE_4X4 = '/images/default.svg';
+export const IMAGE_5X5 = '/images/default-5x5.svg';
 
 export const IMAGE_PRESETS = [
   {
