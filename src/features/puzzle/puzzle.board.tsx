@@ -82,7 +82,7 @@ export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): 
   };
 
   return (
-    <div className="w-full rounded-3xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl shadow-black/30">
+    <div className="mx-auto rounded-3xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl shadow-black/30" style={{ width: `min(100%, calc((100dvh - 9rem) * ${board.cols} / ${board.rows}))` }}>
       <div
         className="grid w-full gap-1 overflow-hidden rounded-2xl bg-slate-950 p-1"
         style={{ gridTemplateColumns: `repeat(${board.cols}, minmax(0, 1fr))`, aspectRatio: `${board.cols} / ${board.rows}` }}
