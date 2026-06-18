@@ -263,6 +263,7 @@ Before shipping any UI change, verify:
 - [ ] Borders = `border-slate-700`; no brighter borders unless it is an active/focus state.
 - [ ] Every new modal reuses the `Modal` component — no raw `fixed inset-0` outside of it.
 - [ ] Shadows only on floating elements (modals, board); flat surfaces are shadow-free.
+- [ ] No new box/card added unless it passes the Box Restraint decision rule.
 
 ---
 
@@ -276,3 +277,44 @@ Before shipping any UI change, verify:
 | New radius values (`rounded-lg`, `rounded-sm`) on cards | Inconsistent; stick to the catalogue |
 | `shadow-md` or `shadow-lg` on flat/inline elements | Shadows are reserved for truly elevated surfaces |
 | Inline `style` for colours | Can't be overridden by Tailwind utilities |
+| Wrapping every text group in a box/card | Creates visual noise and cramped layouts — see Box Restraint rules below |
+
+---
+
+## Box Restraint
+
+AI-generated UI tends to wrap every piece of content in a bordered card. This app uses
+boxes sparingly. Follow these rules before adding any `rounded-* border bg-*` container.
+
+### When a box IS justified
+
+- The content is a **self-contained interactive region** (modal, board, tile).
+- The content needs **visual separation from a complex background** (illustration panels
+  inside the instructions modal).
+- The element is **truly floating** above the page (modals, dropdowns).
+
+### When a box is NOT justified
+
+- A simple label + value pair (e.g. "Time: 00:12 · Moves: 7" — plain text, no card).
+- A list of buttons that already have their own shape (pill buttons stand alone).
+- A section heading with a paragraph below it — use spacing (`mt-*`, `gap-*`) instead.
+- An icon next to a description — use `flex gap-*`, not a card wrapper.
+- Any grouping whose only purpose is "to look organised" — spacing achieves that for free.
+
+### Decision rule
+
+> Ask: *would removing the box break the layout or lose meaning?*
+> If no → remove the box. If yes → keep it and document why in a comment.
+
+### Nesting limit
+
+**Maximum 2 levels of box nesting** in any single view:
+
+```
+Modal card (level 1)
+  └── Step card (level 2)         ← stop here
+        └── ~~illustration box~~  ← remove; use spacing instead
+```
+
+Illustrations and icon-wells inside a step card must use spacing and colour tints
+(`bg-sky-500/15`, `rounded-full`) on the icon itself — not another bordered container.
