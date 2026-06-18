@@ -13,7 +13,8 @@ export type PuzzleTile = Readonly<{
 }>;
 
 export type PuzzleBoard = Readonly<{
-  size: number;
+  rows: number;
+  cols: number;
   tiles: readonly PuzzleTile[];
 }>;
 

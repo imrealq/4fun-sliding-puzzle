@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500" role="img" aria-label="Sliding puzzle 5x3">
+  <rect width="300" height="500" fill="#0f172a" />
+  <g fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="50"  y="66"  font-size="40">1</text>
+    <text x="150" y="66"  font-size="40">2</text>
+    <text x="250" y="66"  font-size="40">3</text>
+
+    <text x="50"  y="166" font-size="40">4</text>
+    <text x="150" y="166" font-size="40">5</text>
+    <text x="250" y="166" font-size="40">6</text>
+
+    <text x="50"  y="266" font-size="40">7</text>
+    <text x="150" y="266" font-size="40">8</text>
+    <text x="250" y="266" font-size="40">9</text>
+
+    <text x="50"  y="366" font-size="40">10</text>
+    <text x="150" y="366" font-size="40">11</text>
+    <text x="250" y="366" font-size="40">12</text>
+
+    <text x="50"  y="466" font-size="40">13</text>
+    <text x="150" y="466" font-size="40">14</text>
+    <text x="250" y="466" font-size="40"> </text>
+  </g>
+</svg>

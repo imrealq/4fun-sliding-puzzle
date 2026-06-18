@@ -10,8 +10,8 @@ function createSeededRandom(seed: number): () => number {
   };
 }
 
-function getSolvableShuffleSteps(size: number): number {
-  return Math.max(size * size * 40, 160);
+function getSolvableShuffleSteps(rows: number, cols: number): number {
+  return Math.max(rows * cols * 40, 160);
 }
 
 function getNeighborTileIds(board: PuzzleBoard): number[] {
@@ -26,7 +26,7 @@ function getNeighborTileIds(board: PuzzleBoard): number[] {
 
 export function shuffleBoard(board: PuzzleBoard): PuzzleBoard {
   const random = createSeededRandom(Date.now());
-  const steps = getSolvableShuffleSteps(board.size);
+  const steps = getSolvableShuffleSteps(board.rows, board.cols);
   let currentBoard = board;
   let previousTileId: number | null = null;
 

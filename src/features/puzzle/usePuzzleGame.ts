@@ -14,8 +14,8 @@ function formatDuration(milliseconds: number): string {
   return [hours, minutes, seconds].map((v) => String(v).padStart(2, '0')).join(':');
 }
 
-function freshBoard(boardSize: number): PuzzleBoard {
-  return shuffleBoard(createSolvedBoard(boardSize));
+function freshBoard(rows: number, cols: number): PuzzleBoard {
+  return shuffleBoard(createSolvedBoard(rows, cols));
 }
 
 const INITIAL_STATE = {
@@ -26,7 +26,7 @@ const INITIAL_STATE = {
   finishedAt: null as number | null,
 };
 
-export function usePuzzleGame(boardSize = 5): Readonly<{
+export function usePuzzleGame(rows = 4, cols = 4): Readonly<{
   board: PuzzleBoard;
   elapsedTime: string;
   moveCount: number;
@@ -36,7 +36,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   moveByTileId: (tileId: number) => void;
   toggleReference: () => void;
 }> {
-  const [board, setBoard] = useState(() => freshBoard(boardSize));
+  const [board, setBoard] = useState(() => freshBoard(rows, cols));
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
   const [moveCount, setMoveCount] = useState(0);
@@ -45,7 +45,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
 
   const resetState = (): void => {
-    setBoard(freshBoard(boardSize));
+    setBoard(freshBoard(rows, cols));
     setStartedAt(INITIAL_STATE.startedAt);
     setNow(INITIAL_STATE.now);
     setMoveCount(INITIAL_STATE.moveCount);
@@ -56,7 +56,7 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   useEffect(() => {
     resetState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSize]);
+  }, [rows, cols]);
 
   const moveByTileId = (tileId: number): void => {
     if (finishedAt) return;

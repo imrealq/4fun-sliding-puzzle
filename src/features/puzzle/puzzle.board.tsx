@@ -82,16 +82,16 @@ export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): 
   };
 
   return (
-    <div className="mx-auto w-full max-w-[28rem] rounded-3xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl shadow-black/30">
+    <div className="w-full rounded-3xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl shadow-black/30">
       <div
-        className="grid aspect-square w-full gap-1 overflow-hidden rounded-2xl bg-slate-950 p-1"
-        style={{ gridTemplateColumns: `repeat(${board.size}, minmax(0, 1fr))` }}
+        className="grid w-full gap-1 overflow-hidden rounded-2xl bg-slate-950 p-1"
+        style={{ gridTemplateColumns: `repeat(${board.cols}, minmax(0, 1fr))`, aspectRatio: `${board.cols} / ${board.rows}` }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchCancel}
       >
         {sortTilesByPosition(board.tiles).map((tile) => {
-          const { backgroundSize, backgroundPosition } = getTileSliceStyle(tile, board.size);
+          const { backgroundSize, backgroundPosition } = getTileSliceStyle(tile, board.rows, board.cols);
           const movable = !tile.isEmpty && onTileMove && canMoveTile(board, tile.id);
 
           return (
@@ -101,7 +101,7 @@ export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): 
               data-tile-id={tile.id}
               onClick={() => movable && onTileMove(tile.id)}
               className={[
-                'relative aspect-square overflow-hidden rounded-xl border transition duration-200',
+                'relative overflow-hidden rounded-xl border transition duration-200',
                 tile.isEmpty
                   ? 'border-dashed border-slate-700 bg-slate-950/80'
                   : 'border-slate-700 bg-slate-900 hover:scale-[0.99] active:scale-[0.98]',

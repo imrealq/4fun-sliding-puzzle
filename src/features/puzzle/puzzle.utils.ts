@@ -1,10 +1,11 @@
 import type { PuzzleBoard, PuzzleTile } from './puzzle.types';
 
-export function createSolvedBoard(size: number): PuzzleBoard {
-  const tiles = Array.from({ length: size * size }, (_, index) => {
-    const row = Math.floor(index / size);
-    const column = index % size;
-    const isEmpty = index === size * size - 1;
+export function createSolvedBoard(rows: number, cols: number): PuzzleBoard {
+  const total = rows * cols;
+  const tiles = Array.from({ length: total }, (_, index) => {
+    const row = Math.floor(index / cols);
+    const column = index % cols;
+    const isEmpty = index === total - 1;
 
     return {
       id: index,
@@ -14,7 +15,7 @@ export function createSolvedBoard(size: number): PuzzleBoard {
     };
   });
 
-  return { size, tiles };
+  return { rows, cols, tiles };
 }
 
 export function getTileAtPosition(
@@ -41,10 +42,11 @@ export function sortTilesByPosition(
 
 export function getTileSliceStyle(
   tile: PuzzleTile,
-  boardSize: number,
+  rows: number,
+  cols: number,
 ): Readonly<{ backgroundSize: string; backgroundPosition: string }> {
   return {
-    backgroundSize: `${boardSize * 100}% ${boardSize * 100}%`,
-    backgroundPosition: `${(tile.correctPosition.column / Math.max(boardSize - 1, 1)) * 100}% ${(tile.correctPosition.row / Math.max(boardSize - 1, 1)) * 100}%`,
+    backgroundSize: `${cols * 100}% ${rows * 100}%`,
+    backgroundPosition: `${(tile.correctPosition.column / Math.max(cols - 1, 1)) * 100}% ${(tile.correctPosition.row / Math.max(rows - 1, 1)) * 100}%`,
   };
 }
