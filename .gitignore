@@ -1,4 +1,6 @@
 .opencode/
+.omo/
+.claude/
 
 # IDE
 .vscode/

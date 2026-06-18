@@ -1,0 +1,109 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0F1E3A" />
+      <stop offset="100%" stop-color="#020617" />
+    </radialGradient>
+    <filter id="arrowGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="256" height="256" rx="28" fill="url(#bgGlow)" />
+  <rect x="1" y="1" width="254" height="254" rx="28" fill="none" stroke="#1E3A5F" stroke-width="1.5" />
+
+  <!--
+    Hand icon — outline style (like cursor/pointer hand)
+    Index finger pointing up, other 3 fingers curled, thumb out.
+    Centered around x=128, finger tip at y~72, bottom at y~210.
+  -->
+  <g transform="translate(128, 141)">
+    <!--
+      Single outline path for the whole hand.
+      Drawn clockwise starting from left side of index fingertip.
+    -->
+    <path d="
+      M -10 -70
+      C -10 -76  10 -76  10 -70
+      L  10  -4
+      C  14  -8   22  -8   26  -4
+      C  30   0   30   6   30  10
+      L  30  16
+      C  34  12   42  12   46  16
+      C  50  20   50  26   50  30
+      L  50  36
+      C  54  33   62  33   66  37
+      C  70  41   70  48   68  52
+      L  60  68
+      C  56  76   48  82   34  82
+      L  14  82
+      C  -4  82  -18  74  -26  60
+      L  -44  28
+      C  -50  16  -46   4  -38   0
+      C  -30  -4  -20   0  -16   8
+      L  -10  20
+      L  -10 -70
+      Z
+    "
+      fill="none"
+      stroke="#60A5FA"
+      stroke-width="6"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    />
+
+    <!-- Knuckle crease lines on index finger -->
+    <line x1="-9" y1="-28" x2="9" y2="-28"
+      stroke="#60A5FA" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+    <line x1="-9" y1="-10" x2="9" y2="-10"
+      stroke="#60A5FA" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+  </g>
+
+  <!-- Touch ripple at fingertip (128, 71) -->
+  <circle cx="128" cy="71" r="10" fill="none" stroke="#38BDF8" stroke-width="1.5">
+    <animate attributeName="r"            values="8;22;8"     dur="2.2s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="0.8;0;0.8" dur="2.2s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="128" cy="71" r="5" fill="none" stroke="#38BDF8" stroke-width="1">
+    <animate attributeName="r"            values="4;14;4"     dur="2.2s" begin="0.35s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="0.6;0;0.6" dur="2.2s" begin="0.35s" repeatCount="indefinite" />
+  </circle>
+
+  <!-- ARROWS -->
+  <!-- Up -->
+  <g filter="url(#arrowGlow)">
+    <path d="M128 30 L120 42 L124 42 L124 52 L132 52 L132 42 L136 42 Z" fill="#38BDF8">
+      <animate attributeName="opacity" values="0.25;1;0.25" dur="1.8s" begin="0s" repeatCount="indefinite" />
+      <animateTransform attributeName="transform" type="translate" values="0,5;0,0;0,5" dur="1.8s" begin="0s" repeatCount="indefinite" />
+    </path>
+  </g>
+
+  <!-- Down -->
+  <g filter="url(#arrowGlow)">
+    <path d="M128 226 L136 214 L132 214 L132 204 L124 204 L124 214 L120 214 Z" fill="#38BDF8">
+      <animate attributeName="opacity" values="0.25;1;0.25" dur="1.8s" begin="0.45s" repeatCount="indefinite" />
+      <animateTransform attributeName="transform" type="translate" values="0,-5;0,0;0,-5" dur="1.8s" begin="0.45s" repeatCount="indefinite" />
+    </path>
+  </g>
+
+  <!-- Left -->
+  <g filter="url(#arrowGlow)">
+    <path d="M30 128 L42 120 L42 124 L52 124 L52 132 L42 132 L42 136 Z" fill="#38BDF8">
+      <animate attributeName="opacity" values="0.25;1;0.25" dur="1.8s" begin="0.9s" repeatCount="indefinite" />
+      <animateTransform attributeName="transform" type="translate" values="5,0;0,0;5,0" dur="1.8s" begin="0.9s" repeatCount="indefinite" />
+    </path>
+  </g>
+
+  <!-- Right -->
+  <g filter="url(#arrowGlow)">
+    <path d="M226 128 L214 120 L214 124 L204 124 L204 132 L214 132 L214 136 Z" fill="#38BDF8">
+      <animate attributeName="opacity" values="0.25;1;0.25" dur="1.8s" begin="1.35s" repeatCount="indefinite" />
+      <animateTransform attributeName="transform" type="translate" values="-5,0;0,0;-5,0" dur="1.8s" begin="1.35s" repeatCount="indefinite" />
+    </path>
+  </g>
+</svg>

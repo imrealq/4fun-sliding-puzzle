@@ -4,12 +4,14 @@ import { IMAGE_5X3, IMAGE_6X4, IMAGE_7X5 } from '@/constants/images';
 import { PuzzleBoard } from './puzzle.board';
 import { PuzzleDifficultySelector } from './PuzzleDifficultySelector';
 import { usePuzzleGame } from './usePuzzleGame';
+import { useInstructions } from './useInstructions';
+import { InstructionModal } from './InstructionModal';
 import type { PuzzleDifficulty, PuzzleDifficultyOption } from './puzzle.difficulty';
 
 const DIFFICULTY_OPTIONS: readonly PuzzleDifficultyOption[] = [
-  { id: 'easy',   label: '5 × 3', rows: 5, cols: 3, imageSrc: IMAGE_5X3 },
+  { id: 'easy', label: '5 × 3', rows: 5, cols: 3, imageSrc: IMAGE_5X3 },
   { id: 'normal', label: '6 × 4', rows: 6, cols: 4, imageSrc: IMAGE_6X4 },
-  { id: 'hard',   label: '7 × 5', rows: 7, cols: 5, imageSrc: IMAGE_7X5 },
+  { id: 'hard', label: '7 × 5', rows: 7, cols: 5, imageSrc: IMAGE_7X5 },
 ] as const;
 
 export function PuzzleScreen(): JSX.Element {
@@ -28,6 +30,8 @@ export function PuzzleScreen(): JSX.Element {
     toggleReference,
   } = usePuzzleGame(selectedOption.rows, selectedOption.cols);
 
+  const instructions = useInstructions();
+
   return (
     <main className="flex h-dvh flex-col bg-slate-950 px-4 pt-4 pb-2 text-slate-100">
       <div className="flex flex-col gap-2">
@@ -35,6 +39,7 @@ export function PuzzleScreen(): JSX.Element {
           elapsedTime={elapsedTime}
           moveCount={moveCount}
           onShuffle={handlePlay}
+          onToggleInstructions={instructions.open}
           onToggleReference={toggleReference}
         />
         <PuzzleDifficultySelector
@@ -46,6 +51,16 @@ export function PuzzleScreen(): JSX.Element {
 
       <section className="flex min-h-0 flex-1 items-center justify-center py-2">
         <PuzzleBoard board={board} imageSrc={selectedOption.imageSrc} onTileMove={moveByTileId} />
+
+        {instructions.isOpen && (
+          <InstructionModal
+            step={instructions.step}
+            onClose={instructions.close}
+            onNext={instructions.next}
+            onPrevious={instructions.previous}
+            onGoTo={instructions.goTo}
+          />
+        )}
 
         {showReference && (
           <Modal onDismiss={toggleReference}>
