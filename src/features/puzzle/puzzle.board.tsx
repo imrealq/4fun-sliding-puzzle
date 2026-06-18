@@ -1,21 +1,21 @@
 import { useRef } from 'react';
 import type { PuzzleBoard as PuzzleBoardModel } from './puzzle.types';
 import type { PuzzleBoardPreviewProps, PuzzleBoardProps } from './puzzle.board.types';
-import { canMoveTile } from './puzzle.logic';
+import { canMoveTile, findEmptyTile } from './puzzle.logic';
 import { getTileAtPosition, getTileSliceStyle, sortTilesByPosition } from './puzzle.utils';
+
+type Direction = 'up' | 'down' | 'left' | 'right';
 
 function getSwipeDirection(
   startX: number,
   startY: number,
   endX: number,
   endY: number,
-): 'up' | 'down' | 'left' | 'right' | null {
+): Direction | null {
   const deltaX = endX - startX;
   const deltaY = endY - startY;
 
-  if (Math.abs(deltaX) < 24 && Math.abs(deltaY) < 24) {
-    return null;
-  }
+  if (Math.abs(deltaX) < 24 && Math.abs(deltaY) < 24) return null;
 
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     return deltaX > 0 ? 'right' : 'left';
@@ -24,72 +24,56 @@ function getSwipeDirection(
   return deltaY > 0 ? 'down' : 'up';
 }
 
+// Returns true if the tile's swipe direction points toward the empty slot.
+function swipeMatchesMove(
+  tileRow: number,
+  tileColumn: number,
+  emptyRow: number,
+  emptyColumn: number,
+  direction: Direction,
+): boolean {
+  return (
+    (direction === 'up'    && tileRow    === emptyRow + 1) ||
+    (direction === 'down'  && tileRow    === emptyRow - 1) ||
+    (direction === 'left'  && tileColumn === emptyColumn + 1) ||
+    (direction === 'right' && tileColumn === emptyColumn - 1)
+  );
+}
+
 export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): React.ReactElement {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const touchedTileIdRef = useRef<number | null>(null);
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>): void => {
     const touch = event.touches[0];
-    const target = event.target as HTMLElement | null;
-    const tileButton = target?.closest('button[data-tile-id]');
+    if (!touch) return;
 
-    if (!touch) {
-      return;
-    }
-
+    const tileButton = (event.target as HTMLElement | null)?.closest('button[data-tile-id]');
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
     touchedTileIdRef.current = tileButton ? Number(tileButton.getAttribute('data-tile-id')) : null;
   };
 
   const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>): void => {
-    if (!touchStartRef.current || !onTileMove || touchedTileIdRef.current === null) {
-      return;
-    }
-
-    const touch = event.changedTouches[0];
-
-    if (!touch) {
-      return;
-    }
-
-    const direction = getSwipeDirection(
-      touchStartRef.current.x,
-      touchStartRef.current.y,
-      touch.clientX,
-      touch.clientY,
-    );
-
-    touchStartRef.current = null;
+    const start = touchStartRef.current;
     const tileId = touchedTileIdRef.current;
+    touchStartRef.current = null;
     touchedTileIdRef.current = null;
 
-    if (!direction) {
-      return;
+    if (!start || !onTileMove || tileId === null) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const direction = getSwipeDirection(start.x, start.y, touch.clientX, touch.clientY);
+    if (!direction) return;
+
+    const tile = board.tiles.find((t) => t.id === tileId);
+    const emptyTile = findEmptyTile(board);
+    if (!tile || tile.isEmpty || !emptyTile || !canMoveTile(board, tile.id)) return;
+
+    if (swipeMatchesMove(tile.position.row, tile.position.column, emptyTile.position.row, emptyTile.position.column, direction)) {
+      onTileMove(tile.id);
     }
-
-    const tile = board.tiles.find((candidate) => candidate.id === tileId);
-
-    if (!tile || tile.isEmpty || !canMoveTile(board, tile.id)) {
-      return;
-    }
-
-    const emptyTile = board.tiles.find((candidate) => candidate.isEmpty);
-
-    if (!emptyTile) {
-      return;
-    }
-
-    const shouldMoveTile =
-      (direction === 'up' && tile.position.row === emptyTile.position.row + 1) ||
-      (direction === 'down' && tile.position.row === emptyTile.position.row - 1) ||
-      (direction === 'left' && tile.position.column === emptyTile.position.column + 1) ||
-      (direction === 'right' && tile.position.column === emptyTile.position.column - 1);
-
-    if (!shouldMoveTile) {
-      return;
-    }
-
-    onTileMove(tile.id);
   };
 
   const handleTouchCancel = (): void => {
@@ -107,32 +91,24 @@ export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): 
         onTouchCancel={handleTouchCancel}
       >
         {sortTilesByPosition(board.tiles).map((tile) => {
-          const isEmpty = tile.isEmpty;
           const { backgroundSize, backgroundPosition } = getTileSliceStyle(tile, board.size);
+          const movable = !tile.isEmpty && onTileMove && canMoveTile(board, tile.id);
 
           return (
             <button
               key={tile.id}
               type="button"
               data-tile-id={tile.id}
-              onClick={() => {
-                if (tile.isEmpty || !onTileMove) {
-                  return;
-                }
-
-                if (canMoveTile(board, tile.id)) {
-                  onTileMove(tile.id);
-                }
-              }}
+              onClick={() => movable && onTileMove(tile.id)}
               className={[
                 'relative aspect-square overflow-hidden rounded-xl border transition duration-200',
-                isEmpty
+                tile.isEmpty
                   ? 'border-dashed border-slate-700 bg-slate-950/80'
                   : 'border-slate-700 bg-slate-900 hover:scale-[0.99] active:scale-[0.98]',
               ].join(' ')}
-              aria-label={isEmpty ? 'Empty slot' : `Tile ${tile.id + 1}`}
+              aria-label={tile.isEmpty ? 'Empty slot' : `Tile ${tile.id + 1}`}
             >
-              {!isEmpty ? (
+              {!tile.isEmpty && (
                 <div
                   className="absolute inset-0 bg-no-repeat bg-center"
                   style={{
@@ -141,7 +117,7 @@ export function PuzzleBoard({ board, imageSrc, onTileMove }: PuzzleBoardProps): 
                     backgroundPosition,
                   }}
                 />
-              ) : null}
+              )}
             </button>
           );
         })}

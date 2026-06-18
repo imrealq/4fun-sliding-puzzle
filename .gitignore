@@ -17,3 +17,4 @@ src/.vs/
 Thumbs.db
 
 node_modules/
+dist/

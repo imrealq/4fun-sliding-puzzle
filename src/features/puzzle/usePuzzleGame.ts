@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { createSolvedBoard, getArrowKeyTileId, isSolvedBoard, moveTile } from './index';
+import { useEffect, useMemo, useState } from 'react';
+import { createSolvedBoard } from './puzzle.utils';
+import { isSolvedBoard, moveTile } from './puzzle.logic';
+import { createKeyboardMoveHandler } from './puzzle.keyboard';
 import type { PuzzleBoard } from './puzzle.types';
 import { shuffleBoard } from './puzzle.shuffle';
 
@@ -9,8 +11,20 @@ function formatDuration(milliseconds: number): string {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+  return [hours, minutes, seconds].map((v) => String(v).padStart(2, '0')).join(':');
 }
+
+function freshBoard(boardSize: number): PuzzleBoard {
+  return shuffleBoard(createSolvedBoard(boardSize));
+}
+
+const INITIAL_STATE = {
+  startedAt: null as number | null,
+  now: null as number | null,
+  moveCount: 0,
+  isWon: false,
+  finishedAt: null as number | null,
+};
 
 export function usePuzzleGame(boardSize = 5): Readonly<{
   board: PuzzleBoard;
@@ -22,84 +36,59 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
   moveByTileId: (tileId: number) => void;
   toggleReference: () => void;
 }> {
-  const [board, setBoard] = useState(() => shuffleBoard(createSolvedBoard(boardSize)));
+  const [board, setBoard] = useState(() => freshBoard(boardSize));
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
   const [moveCount, setMoveCount] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
-  const boardRef = useRef(board);
-  const finishedAtRef = useRef(finishedAt);
-  boardRef.current = board;
-  finishedAtRef.current = finishedAt;
+
+  const resetState = (): void => {
+    setBoard(freshBoard(boardSize));
+    setStartedAt(INITIAL_STATE.startedAt);
+    setNow(INITIAL_STATE.now);
+    setMoveCount(INITIAL_STATE.moveCount);
+    setIsWon(INITIAL_STATE.isWon);
+    setFinishedAt(INITIAL_STATE.finishedAt);
+  };
 
   useEffect(() => {
-    setBoard(shuffleBoard(createSolvedBoard(boardSize)));
-    setStartedAt(null);
-    setNow(null);
-    setMoveCount(0);
-    setIsWon(false);
-    setFinishedAt(null);
+    resetState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardSize]);
 
-  const applyMove = (nextBoard: PuzzleBoard): void => {
-    setBoard(nextBoard);
-    setMoveCount((current) => current + 1);
-
-    if (!startedAt && !finishedAt) {
-      setStartedAt(Date.now());
-      setNow(Date.now());
-    }
-  };
-
   const moveByTileId = (tileId: number): void => {
-    if (finishedAt) {
-      return;
-    }
+    if (finishedAt) return;
 
     const nextBoard = moveTile(board, tileId);
+    if (nextBoard === board) return;
 
-    if (nextBoard === board) {
-      return;
+    setBoard(nextBoard);
+    setMoveCount((c) => c + 1);
+
+    if (!startedAt) {
+      const now = Date.now();
+      setStartedAt(now);
+      setNow(now);
     }
-
-    applyMove(nextBoard);
-  };
-
-  const handlePlay = (): void => {
-    setBoard(shuffleBoard(createSolvedBoard(boardSize)));
-    setStartedAt(null);
-    setNow(null);
-    setMoveCount(0);
-    setIsWon(false);
-    setFinishedAt(null);
   };
 
   const elapsedTime = useMemo(() => {
     const endTime = finishedAt ?? now ?? startedAt;
-
-    if (!startedAt || !endTime) {
-      return '00:00:00';
-    }
-
+    if (!startedAt || !endTime) return '00:00:00';
     return formatDuration(endTime - startedAt);
   }, [finishedAt, now, startedAt]);
 
+  // Tick the clock every second while a game is in progress
   useEffect(() => {
-    if (!startedAt || finishedAt) {
-      return;
-    }
+    if (!startedAt || finishedAt) return;
 
-    const timer = window.setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
   }, [finishedAt, startedAt]);
 
+  // Detect win
   useEffect(() => {
     if (isSolvedBoard(board)) {
       setIsWon(true);
@@ -107,56 +96,27 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
     }
   }, [board]);
 
+  // Keyboard moves
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (finishedAtRef.current) {
-        return;
-      }
-
-      const direction =
-        event.key === 'ArrowUp'
-          ? 'up'
-          : event.key === 'ArrowDown'
-            ? 'down'
-            : event.key === 'ArrowLeft'
-              ? 'left'
-              : event.key === 'ArrowRight'
-                ? 'right'
-                : null;
-
-      if (!direction) {
-        return;
-      }
-
-      event.preventDefault();
-
-      const tileId = getArrowKeyTileId(boardRef.current, direction);
-
-      if (tileId === null) {
-        return;
-      }
+    const handler = createKeyboardMoveHandler((updater) => {
+      if (finishedAt) return;
 
       setBoard((currentBoard) => {
-        const nextBoard = moveTile(currentBoard, tileId);
-
-        if (nextBoard === currentBoard) {
-          return currentBoard;
-        }
+        const nextBoard = updater(currentBoard);
+        if (nextBoard === currentBoard) return currentBoard;
 
         setMoveCount((c) => c + 1);
         setStartedAt((s) => s ?? Date.now());
         setNow(Date.now());
-
         return nextBoard;
       });
-    };
+    });
 
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, []);
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  // Re-register when finishedAt changes so the guard inside sees the latest value
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishedAt]);
 
   return {
     board,
@@ -164,8 +124,8 @@ export function usePuzzleGame(boardSize = 5): Readonly<{
     moveCount,
     isWon,
     showReference,
-    handlePlay,
+    handlePlay: resetState,
     moveByTileId,
-    toggleReference: () => setShowReference((current) => !current),
+    toggleReference: () => setShowReference((s) => !s),
   };
 }

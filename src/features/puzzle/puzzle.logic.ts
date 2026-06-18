@@ -1,12 +1,22 @@
 import type { PuzzleBoard } from './puzzle.types';
 
+type Direction = 'up' | 'down' | 'left' | 'right';
+
+// ArrowUp = blank moves up = tile BELOW blank fills the slot.
+// Offset from empty to find which tile moves in.
+const ARROW_TO_TILE_OFFSET: Record<Direction, { row: number; column: number }> = {
+  up:    { row:  1, column:  0 },
+  down:  { row: -1, column:  0 },
+  left:  { row:  0, column:  1 },
+  right: { row:  0, column: -1 },
+};
+
 export function isSolvedBoard(board: PuzzleBoard): boolean {
-  return board.tiles.every((tile) => {
-    return (
+  return board.tiles.every(
+    (tile) =>
       tile.position.row === tile.correctPosition.row &&
-      tile.position.column === tile.correctPosition.column
-    );
-  });
+      tile.position.column === tile.correctPosition.column,
+  );
 }
 
 export function findEmptyTile(board: PuzzleBoard): PuzzleBoard['tiles'][number] | null {
@@ -16,9 +26,7 @@ export function findEmptyTile(board: PuzzleBoard): PuzzleBoard['tiles'][number] 
 export function getEmptyTilePosition(
   board: PuzzleBoard,
 ): PuzzleBoard['tiles'][number]['position'] | null {
-  const emptyTile = findEmptyTile(board);
-
-  return emptyTile ? emptyTile.position : null;
+  return findEmptyTile(board)?.position ?? null;
 }
 
 export function getTileById(
@@ -32,10 +40,7 @@ export function areAdjacent(
   a: { row: number; column: number },
   b: { row: number; column: number },
 ): boolean {
-  const rowDistance = Math.abs(a.row - b.row);
-  const columnDistance = Math.abs(a.column - b.column);
-
-  return rowDistance + columnDistance === 1;
+  return Math.abs(a.row - b.row) + Math.abs(a.column - b.column) === 1;
 }
 
 export function canMoveTile(board: PuzzleBoard, tileId: number): boolean {
@@ -49,37 +54,11 @@ export function canMoveTile(board: PuzzleBoard, tileId: number): boolean {
   return areAdjacent(tile.position, emptyTile.position);
 }
 
-export function canMoveTileByArrowKey(
-  board: PuzzleBoard,
-  direction: 'up' | 'down' | 'left' | 'right',
-): number | null {
-  const emptyTile = findEmptyTile(board);
-
-  if (!emptyTile) {
-    return null;
-  }
-
-  const targetPosition =
-    direction === 'up'
-      ? { row: emptyTile.position.row - 1, column: emptyTile.position.column }
-      : direction === 'down'
-        ? { row: emptyTile.position.row + 1, column: emptyTile.position.column }
-        : direction === 'left'
-          ? { row: emptyTile.position.row, column: emptyTile.position.column - 1 }
-          : { row: emptyTile.position.row, column: emptyTile.position.column + 1 };
-
-  const tile = board.tiles.find(
-    (candidate) =>
-      candidate.position.row === targetPosition.row &&
-      candidate.position.column === targetPosition.column,
-  );
-
-  return tile && canMoveTile(board, tile.id) ? tile.id : null;
-}
-
+// Returns the id of the tile that would move into the empty slot in the given direction.
+// Arrow key "up" means the tile below the empty slot moves up.
 export function getArrowKeyTileId(
   board: PuzzleBoard,
-  direction: 'up' | 'down' | 'left' | 'right',
+  direction: Direction,
 ): number | null {
   const emptyTile = findEmptyTile(board);
 
@@ -87,19 +66,14 @@ export function getArrowKeyTileId(
     return null;
   }
 
-  const targetPosition =
-    direction === 'up'
-      ? { row: emptyTile.position.row + 1, column: emptyTile.position.column }
-      : direction === 'down'
-        ? { row: emptyTile.position.row - 1, column: emptyTile.position.column }
-        : direction === 'left'
-          ? { row: emptyTile.position.row, column: emptyTile.position.column + 1 }
-          : { row: emptyTile.position.row, column: emptyTile.position.column - 1 };
+  const offset = ARROW_TO_TILE_OFFSET[direction];
+  const targetRow = emptyTile.position.row + offset.row;
+  const targetColumn = emptyTile.position.column + offset.column;
 
   const tile = board.tiles.find(
     (candidate) =>
-      candidate.position.row === targetPosition.row &&
-      candidate.position.column === targetPosition.column,
+      candidate.position.row === targetRow &&
+      candidate.position.column === targetColumn,
   );
 
   return tile && canMoveTile(board, tile.id) ? tile.id : null;
@@ -116,14 +90,8 @@ export function moveTile(board: PuzzleBoard, tileId: number): PuzzleBoard {
   return {
     ...board,
     tiles: board.tiles.map((candidate) => {
-      if (candidate.id === tile.id) {
-        return { ...candidate, position: emptyTile.position };
-      }
-
-      if (candidate.id === emptyTile.id) {
-        return { ...candidate, position: tile.position };
-      }
-
+      if (candidate.id === tile.id) return { ...candidate, position: emptyTile.position };
+      if (candidate.id === emptyTile.id) return { ...candidate, position: tile.position };
       return candidate;
     }),
   };
