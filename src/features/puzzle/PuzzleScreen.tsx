@@ -64,11 +64,11 @@ export function PuzzleScreen(): JSX.Element {
 
         {showReference && (
           <Modal onDismiss={toggleReference}>
-            <div className="relative z-10 w-full max-w-[22rem] rounded-2xl border border-slate-700 bg-slate-950 p-3 shadow-2xl shadow-black/40">
+            <div className="relative z-10 w-full max-w-[22rem] rounded-3xl border border-slate-700 bg-slate-950 p-3 shadow-2xl shadow-black/40">
               <img
                 src={selectedOption.imageSrc}
                 alt="Reference image"
-                className="h-auto w-full rounded-lg"
+                className="h-auto w-full rounded-2xl"
               />
             </div>
           </Modal>
